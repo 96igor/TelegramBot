@@ -2,11 +2,14 @@ package job.Project29.service;
 
 
 import job.Project29.config.BotConfig;
+import job.Project29.model.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
@@ -19,6 +22,8 @@ import java.util.List;
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
 
+    @Autowired
+    private UserRepository userRepository;
     final BotConfig config;
 
     static final String HELP_TEXT = "This bot is created to demonstrate Spring capabilities.\n\n" +
@@ -63,8 +68,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             switch (massgeText) {
                 case "/start":
 
-                        startCommandRecived(chatId, update.getMessage().getChat().getFirstName());
-                        break;
+                    registerUser(update.getMessage());
+                    startCommandRecived(chatId, update.getMessage().getChat().getFirstName());
+                    break;
 
                 case "/help":
 
@@ -76,6 +82,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             }
         }
+
+    }
+
+    private void registerUser(Message msg) {
+
 
     }
 
