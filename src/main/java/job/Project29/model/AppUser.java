@@ -7,14 +7,14 @@ import jakarta.persistence.Id;
 import java.sql.Timestamp;
 
 @Entity(name = "usersDataTable")
-public class User {
+public class AppUser {
 
     @Id
     private Long chatId;
 
     private String firstName;
 
-    private String lastNme;
+    private String lastName;
 
     private String userName;
 
@@ -36,12 +36,12 @@ public class User {
         this.firstName = firstName;
     }
 
-    public String getLastNme() {
-        return lastNme;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLastNme(String lastNme) {
-        this.lastNme = lastNme;
+    public void setLastName(String lastNme) {
+        this.lastName = lastNme;
     }
 
     public String getUserName() {
@@ -58,5 +58,16 @@ public class User {
 
     public void setRegisteredAt(Timestamp registeredAt) {
         this.registeredAt = registeredAt;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "chatId=" + chatId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", registeredAt=" + registeredAt +
+                '}';
     }
 }
