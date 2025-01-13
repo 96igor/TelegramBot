@@ -1,6 +1,7 @@
 package job.Project29.service;
 
 
+import com.vdurmont.emoji.EmojiParser;
 import job.Project29.config.BotConfig;
 import job.Project29.model.AppUser;
 import job.Project29.model.UserRepository;
@@ -109,7 +110,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void startCommandReceived(long chatId, String name) {
 
-        String answer = "Hi, " + name + ", nice to meet you!";
+
+        String answer = EmojiParser.parseToUnicode("Hi, " + name + ", nice to meet you!" + " :blush:");
+        //String answer = "Hi, " + name + ", nice to meet you!";
         log.info("Replied to user " + name);
 
 
