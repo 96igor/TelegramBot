@@ -73,6 +73,15 @@ public class TelegramBot extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
+            if(messageText.contains("/send") && config.getOwnerId() == chatId) {
+                String textToSend = EmojiParser.parseToUnicode(messageText.substring(messageText.indexOf(" ")));
+                Iterable<AppUser> users = userRepository.findAll();
+                for (AppUser user: users) {
+                    sendMessage(user.getChatId(), textToSend);
+                }
+
+            }
+
             switch (messageText) {
                 case "/start":
 
