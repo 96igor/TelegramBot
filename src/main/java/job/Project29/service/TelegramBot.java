@@ -42,6 +42,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     static final String YES_BUTTON = "YES_BUTTON";
     static final String NO_BUTTON = "NO_BUTTON";
+
+    static final String ERROR_TEXT = "Error occurred: ";
     
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -80,31 +82,34 @@ public class TelegramBot extends TelegramLongPollingBot {
                 String textToSend = EmojiParser.parseToUnicode(messageText.substring(messageText.indexOf(" ")));
                 Iterable<AppUser> users = userRepository.findAll();
                 for (AppUser user: users) {
-                    sendMessage(user.getChatId(), textToSend);
+                    prepareAndSendMessage(user.getChatId(), textToSend);
                 }
 
             }
 
-            switch (messageText) {
-                case "/start":
+            else {
 
-                    registerUser(update.getMessage());
-                    startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                    break;
+                switch (messageText) {
+                    case "/start":
 
-                case "/help":
+                        registerUser(update.getMessage());
+                        startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                        break;
 
-                    sendMessage(chatId, HELP_TEXT);
-                    break;
+                    case "/help":
 
-                case "/register":
+                        prepareAndSendMessage(chatId, HELP_TEXT);
+                        break;
 
-                    register(chatId);
-                    break;
-                default:
+                    case "/register":
 
-                        sendMessage(chatId, "Sorry, command was not recognized");
+                        register(chatId);
+                        break;
+                    default:
 
+                        prepareAndSendMessage(chatId, "Sorry, command was not recognized");
+
+                }
             }
         } else if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
@@ -149,11 +154,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         markupInLine.setKeyboard(rowsInLine);
         message.setReplyMarkup(markupInLine);
 
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Error occurred " + e.getMessage());
-        }
+        executeMessage(message);
     }
 
     private void registerUser(Message msg) {
@@ -180,7 +181,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
         String answer = EmojiParser.parseToUnicode("Hi, " + name + ", nice to meet you!" + " :blush: ");
-        //String answer = "Hi, " + name + ", nice to meet you!";
+
         log.info("Replied to user " + name);
 
 
@@ -189,7 +190,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void sendMessage(long chatId, String textToSend) {
-
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
@@ -217,11 +217,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         message.setReplyMarkup(keyboardMarkup);
 
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Error occurred " + e.getMessage());
-        }
+        executeMessage(message);
     }
 
     private void executeEditMessageText(String text, long chatId, long messageId) {
@@ -233,8 +229,23 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error("Error occurred " + e.getMessage());
+            log.error(ERROR_TEXT + e.getMessage());
         }
+    }
+
+    private void executeMessage(SendMessage message) {
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error(ERROR_TEXT + e.getMessage());
+        }
+    }
+
+    private void prepareAndSendMessage(long chatId, String textToSend) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        executeMessage(message);
     }
 }
 
