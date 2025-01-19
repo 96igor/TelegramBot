@@ -3,10 +3,13 @@ package job.Project29.service;
 
 import com.vdurmont.emoji.EmojiParser;
 import job.Project29.config.BotConfig;
+import job.Project29.model.Ads;
+import job.Project29.model.AdsRepository;
 import job.Project29.model.AppUser;
 import job.Project29.model.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -32,6 +35,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AdsRepository adsRepository;
     final BotConfig config;
 
     static final String HELP_TEXT = "This bot is created to demonstrate Spring capabilities.\n\n" +
@@ -246,6 +251,20 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
         executeMessage(message);
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    private void sendAds(){
+
+        var ads = adsRepository.findAll();
+        var users = userRepository.findAll();
+
+        for (Ads ad: ads) {
+            for (AppUser user: users){
+                prepareAndSendMessage(user.getChatId(), ad.getAd());
+            }
+        }
+
     }
 }
 
